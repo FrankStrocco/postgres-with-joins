@@ -1,0 +1,95 @@
+<!-- WHERE
+
+What is the population of the US? (HINT: starts with 2, ends with 000) -->
+SELECT name, population FROM country WHERE code = 'USA';
+
+<!-- What is the area of the US? (starts with 9, ends with million square miles) -->
+SELECT name, surfacearea FROM country WHERE code = 'USA';
+
+<!-- List the countries in Africa that have a population smaller than 30,000,000 and a life expectancy of more than 45? (all 37 of them) -->
+SELECT name FROM country WHERE population < 30000000 and lifeexpectancy > 45 and continent = 'Africa'
+
+<!-- Which countries are something like a republic? (are there 122 or 143 countries or ?) -->
+SELECT name FROM country WHERE governmentform LIKE '%Republic'
+
+<!-- Which countries are some kind of republic and acheived independence after 1945? -->
+SELECT name, indepyear FROM country WHERE governmentform LIKE '%Republic' and indepyear > 1945
+
+<!-- Which countries acheived independence after 1945 and are not some kind of republic? -->
+SELECT name, indepyear FROM country WHERE NOT governmentform LIKE '%Republic' and indepyear > 1945
+
+<!-- Which fifteen countries have the lowest life expectancy? highest life expectancy? -->
+SELECT name, lifeexpectancy FROM country WHERE lifeexpectancy > 0 ORDER BY lifeexpectancy asc LIMIT 15
+
+<!-- Which five countries have the lowest population density? highest population density? -->
+SELECT name, population FROM country WHERE population > 0 ORDER BY population  asc LIMIT 5
+
+<!-- Which is the smallest country, by area and population? the 10 smallest countries, by area and population? -->
+SELECT name, surfacearea, population, continent FROM country WHERE population > 0 and surfacearea > 0 ORDER BY surfacearea asc, population asc LIMIT 10;
+
+<!-- Which is the biggest country, by area and population? the 10 biggest countries, by area and population? -->
+SELECT name, surfacearea, population, continent FROM country WHERE population > 0 and surfacearea > 0 ORDER BY surfacearea desc, population desc LIMIT 10;
+
+<!-- WITH -->
+
+<!-- Of the smallest 10 countries, which has the biggest gnp? (hint: use WITH and LIMIT) -->
+WITH smallest10 AS (SELECT name, gnp, surfacearea FROM country
+WHERE gnp > 0 and surfacearea > 0 ORDER BY surfacearea asc LIMIT 10)
+SELECT gnp, surfacearea, name FROM smallest10 ORDER BY gnp desc
+
+<!-- Of the smallest 10 countries, which has the biggest per capita gnp? -->
+WITH smallest10 AS (SELECT name, population, gnp FROM country WHERE population > 0 and gnp > 0
+ORDER BY population asc LIMIT 10)
+SELECT gnp, population, name, gnp/population AS gnppercapita FROM smallest10 ORDER BY gnppercapita desc
+
+<!-- Of the biggest 10 countries, which has the biggest gnp? -->
+WITH big10 AS (SELECT name, surfacearea, gnp FROM country WHERE surfacearea > 0 and gnp > 0
+ORDER BY surfacearea desc LIMIT 10)
+SELECT gnp, surfacearea, name FROM big10 ORDER BY gnp desc;
+
+<!-- Of the biggest 10 countries, which has the biggest per capita gnp? -->
+WITH big10 AS (SELECT name, surfacearea, gnp, population FROM country WHERE surfacearea > 0 and gnp > 0
+ORDER BY surfacearea desc LIMIT 10)
+SELECT gnp, surfacearea, name, population, gnp/population AS gnppercapita FROM big10 ORDER BY gnppercapita desc;
+
+<!-- What is the sum of surface area of the 10 biggest countries in the world? The 10 smallest? -->
+WITH big10 AS (SELECT name, surfacearea FROM country WHERE surfacearea > 0
+ORDER BY surfacearea asc LIMIT 10)
+SELECT SUM(surfacearea) AS summed_area FROM big10;
+WITH big10 AS (SELECT name, surfacearea FROM country WHERE surfacearea > 0
+ORDER BY surfacearea desc LIMIT 10)
+SELECT SUM(surfacearea) AS summed_area FROM big10;
+
+<!-- GROUP BY
+
+How big are the continents in term of area and population? -->
+SELECT continent, SUM(surfacearea), SUM(population) FROM country GROUP BY continent;
+
+<!-- Which region has the highest average gnp? -->
+SELECT continent, SUM(surfacearea) FROM country GROUP BY continent;
+
+<!-- Who is the most influential head of state measured by population? -->
+WITH headofstate_list AS (SELECT headofstate, SUM(population) AS sum_pop FROM country WHERE headofstate is not null and headofstate != '' GROUP BY headofstate)
+SELECT headofstate, sum_pop FROM headofstate_list ORDER BY sum_pop desc;
+
+<!-- Who is the most influential head of state measured by surface area? -->
+WITH headofstate_list AS (SELECT headofstate, SUM(surfacearea) AS sum_sa FROM country WHERE headofstate is not null and headofstate != '' GROUP BY headofstate)
+SELECT headofstate, sum_sa FROM headofstate_list ORDER BY sum_sa desc;
+
+<!-- What are the most common forms of government? (hint: use count(*)) -->
+SELECT COUNT (DISTINCT governmentform) FROM country;
+WITH governmentform_list AS (SELECT governmentform,COUNT(governmentform) AS govt_list FROM country WHERE governmentform is not null and governmentform != '' GROUP BY governmentform)
+SELECT governmentform, govt_list FROM governmentform_list ORDER BY govt_list desc;
+
+<!-- What are the forms of government for the top ten countries by surface area? -->
+WITH government_by_sa AS (SELECT name, governmentform, surfacearea FROM country WHERE governmentform is not null and governmentform != '' and surfacearea > 0 ORDER BY surfacearea desc LIMIT 10)
+SELECT name, governmentform, surfacearea FROM government_by_sa ORDER BY surfacearea desc;
+
+<!-- What are the forms of government for the top ten richest nations? (technically most productive) -->
+WITH  gnp_list AS (SELECT name, governmentform, gnp FROM country WHERE governmentform is not null and governmentform != '' and gnp > 0
+ORDER BY gnp desc LIMIT 10)
+SELECT name, governmentform, gnp FROM gnp_list ORDER BY gnp desc;
+
+<!-- What are the forms of government for the top ten richest per capita nations? (technically most productive) -->
+WITH  gnp_list AS (SELECT gnp, population, name, governmentform, gnp/population AS percap FROM country WHERE governmentform is not null and governmentform != '' and gnp > 0 and population > 0 LIMIT 10)
+SELECT name, governmentform, percap FROM gnp_list ORDER BY percap desc;
