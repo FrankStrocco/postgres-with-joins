@@ -1,0 +1,45 @@
+Relatively Simple JOINS
+
+<!-- What languages are spoken in the United States? (12) Brazil? (not Spanish...) Switzerland? (6) -->
+
+SELECT
+	c.code,
+    c.name AS country,
+    cl.language AS language
+FROM
+	country c JOIN
+    countrylanguage cl ON c.code = cl.countrycode
+ORDER BY
+	c.name,
+    language
+
+
+
+What are the cities of the US? (274) India? (341)
+Languages
+
+What are the official languages of Switzerland? (4 languages)
+Which country or contries speak the most languages? (12 languages)
+Hint: Use GROUP BY and COUNT(...)
+Which country or contries have the most offficial languages? (4 languages)
+Hint: Use GROUP BY and ORDER BY
+Which languages are spoken in the ten largest (area) countries?
+Hint: Use WITH to get the countries and join with that table
+What languages are spoken in the 20 poorest (GNP/ capita) countries in the world? (94 with GNP > 0)
+Hint: Use WITH to get the countries, and SELECT DISTINCT to remove duplicates
+Are there any countries without an official language?
+Hint: Use NOT IN with a SELECT
+What are the languages spoken in the countries with no official language? (49 countries, 172 languages, incl. English)
+Which countries have the highest proportion of official language speakers? The lowest?
+What is the most spoken language in the world?
+Cities
+
+What is the population of the United States? What is the city population of the United States?
+What is the population of the India? What is the city population of the India?
+Which countries have no cities? (7 not really contries...)
+Languages and Cities
+
+What is the total population of cities where English is the offical language? Spanish?
+Hint: The official language of a city is based on country.
+Which countries have the 100 biggest cities in the world?
+What languages are spoken in the countries with the 100 biggest cities in the world?
